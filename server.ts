@@ -26,7 +26,7 @@ const ai = process.env.GEMINI_API_KEY
   : null;
 
 // Reader personas configuration
-// - Madame Vy & Thầy Cả: Claude AI (or Gemini fallback with high-intelligence prompt)
+// - Madame Vi & Thầy Cả: Claude AI (or Gemini fallback with high-intelligence prompt)
 // - Bé Z & Chị Thảo: Gemini Flash Free
 const READER_PERSONAS: Record<string, {
   name: string;
@@ -36,11 +36,11 @@ const READER_PERSONAS: Record<string, {
   systemPrompt: string;
 }> = {
   'madame-realist': {
-    name: 'Madame Vy (Sắc Sảo & Thực Tế)',
+    name: 'Madame Vi (Sắc Sảo & Thực Tế)',
     tagline: 'Vả bay ảo tưởng, nói thật mất lòng nhưng tỉnh ngộ',
     engine: 'claude',
     styleDescription: 'Phong cách sắc bén, đi thẳng vào vấn đề, dùng lối nói thấu tình đạt lý, dí dỏm, châm biếm thông minh nhưng cực kỳ chân thành và cho lời khuyên logic hành động rõ ràng.',
-    systemPrompt: `Bạn là Madame Vy - một Tarot Reader chuyên nghiệp, sắc sảo, cực kỳ thực tế và hài hước thâm thúy tại Việt Nam.
+    systemPrompt: `Bạn là Madame Vi - một Tarot Reader chuyên nghiệp, sắc sảo, cực kỳ thực tế và hài hước thâm thúy tại Việt Nam.
 Phong cách đọc bài của bạn:
 - Tinh thần: "Sắc sảo, thực tế, hài hước, tỉnh táo". Không mê tín dị đoan, không nói nước đôi, không thao túng tâm lý.
 - Điểm đặc trưng: Bóc trần ảo tưởng một cách duyên dáng ("vả tỉnh người hỏi"), nhìn thẳng vào bản chất vấn đề, vạch ra các điểm mù tâm lý.
@@ -213,7 +213,7 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
 10. "shareableQuote": 1 câu quote ngắn gọn (12 - 20 từ) cực kỳ deep, bén ngót, trúng tim đen để xuất thẻ ảnh khoe lên Threads/Instagram Story.
 `;
 
-    // If Reader is Madame Vy or Thầy Cả and Anthropic key exists -> try Claude
+    // If Reader is Madame Vi or Thầy Cả and Anthropic key exists -> try Claude
     if (persona.engine === 'claude' && process.env.ANTHROPIC_API_KEY) {
       const claudeData = await callClaudeAPI(persona.systemPrompt, promptText);
       if (claudeData) {
@@ -274,7 +274,7 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
       return;
     }
 
-    // Call Gemini 3.8 Flash (Used for Bé Z, Chị Thảo & fallback for Madame Vy/Thầy Cả)
+    // Call Gemini 3.8 Flash (Used for Bé Z, Chị Thảo & fallback for Madame Vi/Thầy Cả)
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash',
       contents: promptText,
@@ -464,6 +464,148 @@ Hãy viết thông điệp "Thông điệp Thực Tế Hôm Nay" cho người n�
   }
 });
 
+// --- SEPAY AUTOMATED PAYMENT GATEWAY INTEGRATION ---
+const SEPAY_API_KEY = process.env.SEPAY_API_KEY || 'spsk_test_tCPwjjqAKZJGqeKKjUMEoUwKU9F6X2YT';
+const SEPAY_MERCHANT_CODE = process.env.SEPAY_MERCHANT_CODE || 'SP-TEST-LT492795';
+const sepayTransactionsCache: Array<{
+  id: string | number;
+  content: string;
+  amount: number;
+  timestamp: number;
+}> = [];
+
+// GET /api/sepay/config
+app.get('/api/sepay/config', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    merchantCode: SEPAY_MERCHANT_CODE,
+    hasApiKey: !!SEPAY_API_KEY,
+  });
+});
+
+// POST /api/sepay/webhook - Receive automatic bank transfer notifications from SePay
+app.post('/api/sepay/webhook', (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    console.log('[SePay Webhook Received]:', JSON.stringify(data));
+
+    if (data) {
+      const content = String(data.content || data.description || '');
+      const amount = parseFloat(data.transferAmount || data.amount_in || '0');
+
+      sepayTransactionsCache.unshift({
+        id: data.id || Date.now(),
+        content,
+        amount,
+        timestamp: Date.now(),
+      });
+
+      // Keep last 100 transactions
+      if (sepayTransactionsCache.length > 100) {
+        sepayTransactionsCache.pop();
+      }
+    }
+
+    res.json({ success: true, message: 'SePay webhook accepted' });
+  } catch (err: any) {
+    console.error('Error in SePay webhook:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/sepay/check-payment - Query SePay API to verify if payment arrived
+app.get('/api/sepay/check-payment', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const orderCode = String(req.query.orderCode || '').trim();
+    const amount = parseFloat(String(req.query.amount || '0'));
+
+    if (!orderCode) {
+      res.json({ success: false, paid: false, message: 'orderCode is required' });
+      return;
+    }
+
+    // 1. Check in-memory webhook cache first
+    const cachedMatch = sepayTransactionsCache.find((t) => {
+      const normalizedContent = t.content.toLowerCase().replace(/[\s-_]/g, '');
+      const normalizedOrderCode = orderCode.toLowerCase().replace(/[\s-_]/g, '');
+      const normalizedMerchant = SEPAY_MERCHANT_CODE.toLowerCase().replace(/[\s-_]/g, '');
+
+      const isContentMatch =
+        normalizedContent.includes(normalizedOrderCode) ||
+        (normalizedContent.includes(normalizedMerchant) && t.amount >= amount * 0.95);
+
+      return isContentMatch && t.amount >= amount * 0.95;
+    });
+
+    if (cachedMatch) {
+      res.json({
+        success: true,
+        paid: true,
+        source: 'webhook_cache',
+        transaction: cachedMatch,
+      });
+      return;
+    }
+
+    // 2. Query SePay REST API (Transactions List)
+    if (SEPAY_API_KEY) {
+      try {
+        const sepayRes = await fetch('https://my.sepay.vn/userapi/transactions/list?limit=20', {
+          headers: {
+            Authorization: `Bearer ${SEPAY_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (sepayRes.ok) {
+          const sepayData = await sepayRes.json();
+          const transactions = sepayData.transactions || [];
+
+          const apiMatch = transactions.find((t: any) => {
+            const rawContent = String(t.transaction_content || '');
+            const normalizedContent = rawContent.toLowerCase().replace(/[\s-_]/g, '');
+            const normalizedOrderCode = orderCode.toLowerCase().replace(/[\s-_]/g, '');
+            const normalizedMerchant = SEPAY_MERCHANT_CODE.toLowerCase().replace(/[\s-_]/g, '');
+            const transAmount = parseFloat(t.amount_in || '0');
+
+            const isMatch =
+              (normalizedContent.includes(normalizedOrderCode) ||
+                normalizedContent.includes(normalizedMerchant)) &&
+              transAmount >= amount * 0.95;
+
+            return isMatch;
+          });
+
+          if (apiMatch) {
+            // Cache found transaction
+            sepayTransactionsCache.unshift({
+              id: apiMatch.id,
+              content: apiMatch.transaction_content,
+              amount: parseFloat(apiMatch.amount_in || '0'),
+              timestamp: Date.now(),
+            });
+
+            res.json({
+              success: true,
+              paid: true,
+              source: 'sepay_api',
+              transaction: apiMatch,
+            });
+            return;
+          }
+        }
+      } catch (apiErr) {
+        console.warn('SePay API poll warning:', apiErr);
+      }
+    }
+
+    res.json({ success: true, paid: false });
+  } catch (err: any) {
+    console.error('Error checking SePay payment:', err);
+    res.status(500).json({ success: false, paid: false, error: err.message });
+  }
+});
+
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
@@ -471,6 +613,8 @@ app.get('/api/health', (req: Request, res: Response) => {
     service: 'Tarot Realist API',
     hasGemini: !!ai,
     hasClaude: !!process.env.ANTHROPIC_API_KEY,
+    hasSepay: !!SEPAY_API_KEY,
+    sepayMerchant: SEPAY_MERCHANT_CODE,
   });
 });
 

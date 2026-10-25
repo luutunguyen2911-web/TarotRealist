@@ -20,7 +20,7 @@ export interface ReaderPersona {
 export const READERS: ReaderPersona[] = [
   {
     id: 'madame-realist',
-    name: 'Madame Vy',
+    name: 'Madame Vi',
     title: 'Reader Sắc Sảo & Thực Tế',
     tagline: 'Vả bay ảo tưởng, nói thật mất lòng nhưng giúp bạn tỉnh ngộ!',
     avatar: '👩🏻‍💼',
