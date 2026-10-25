@@ -1,0 +1,6 @@
+{
+  "name": "Tarot Realist - Bói Bài Sắc Sảo & Hài Hước",
+  "description": "Ứng dụng xem Tarot thông minh với các AI Reader cá tính sắc sảo, thực tế, hài hước. Trải bài tình duyên, sự nghiệp, Yes/No cùng mô hình mua lượt và gói VIP tháng.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
