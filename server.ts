@@ -158,6 +158,93 @@ Hãy giải mã tâm lý người cũ / đối phương và trả về JSON theo
   return callClaudeAPI(systemPrompt, userPrompt);
 }
 
+// Resilient Fallback Tarot Reading Generator (Customized per Reader Persona & Cards)
+function generateFallbackReading(
+  persona: any,
+  question: string,
+  cards: any[],
+  topic: string,
+  userContext: string
+) {
+  const primaryCard = cards[0] || {
+    nameVi: 'Vị Vua Tiền Bạc',
+    name: 'King of Pentacles',
+    isReversed: false,
+    keywords: 'Vững vàng, tài chính, kiểm soát',
+  };
+  const cardNames = cards.map((c) => `${c.nameVi || c.name} (${c.isReversed ? 'ngược' : 'xuôi'})`).join(', ');
+
+  const punchlines: Record<string, string> = {
+    'madame-realist': `Lá bài ${primaryCard.nameVi || primaryCard.name} nhắc bạn: Đừng cố chấp tưới nước cho cây nhựa nữa, người ta không rep tin nhắn tức là câu trả lời rồi!`,
+    'genz-boc-me': `Cờ đỏ bay rợp trời tưởng hội trại, lá ${primaryCard.nameVi || primaryCard.name} bảo bạn bớt simp và tỉnh táo lại ngay!`,
+    'chi-thao': `Lá ${primaryCard.nameVi || primaryCard.name} gửi đến bạn thông điệp yêu thương: Bạn đã kiên cường rất nhiều rồi, hãy cho phép bản thân nghỉ ngơi.`,
+    'thay-triet-hoc': `Cục diện lá ${primaryCard.nameVi || primaryCard.name} cho thấy: Cờ tàn thì dừng, không thể dùng sự bốc đồng ngắn hạn để đối phó thế cuộc dài hạn.`,
+  };
+
+  const selectedKey = persona.engine === 'claude'
+    ? (persona.name.includes('Thầy') ? 'thay-triet-hoc' : 'madame-realist')
+    : (persona.name.includes('Thảo') ? 'chi-thao' : 'genz-boc-me');
+
+  const chosenPunchline = punchlines[selectedKey] || punchlines['madame-realist'];
+
+  return {
+    punchline: chosenPunchline,
+    generalOverview: `Nhìn vào năng lượng tụ bài (${cardNames || 'Hiện tại'}), ${persona.name} thấy bạn đang tự dựng lên nhiều rào cản suy diễn hơn thực tế. Vấn đề không bế tắc như bạn nghĩ, điều cần làm lúc này là bước lùi một bước để nhìn rõ toàn cảnh bàn cờ.`,
+    cardsAnalysis: cards.length > 0
+      ? cards.map((c: any, i: number) => ({
+          cardName: c.nameVi || c.name,
+          position: c.positionName || `Lá ${i + 1}`,
+          interpretation: `Với lá ${c.nameVi || c.name} ${c.isReversed ? 'ở thế ngược' : 'ở thế thuận'}, thông điệp muốn nhắn nhủ: ${
+            c.isReversed
+              ? 'Có sự ngập ngừng và sợ đối diện sự thật. Đừng tiếp tục trì hoãn việc đưa ra quyết định mà lòng bạn đã biết rõ.'
+              : 'Năng lượng đang sẵn sàng chuyển biến tích cực nếu bạn dứt khoát nắm quyền chủ động và đặt ra ranh giới rõ ràng.'
+          }`,
+        }))
+      : [
+          {
+            cardName: primaryCard.nameVi || primaryCard.name,
+            position: 'Thông điệp trọng tâm',
+            interpretation: 'Bạn đang tìm kiếm sự khẳng định từ bên ngoài trong khi câu trả lời thực ra đã nằm sẵn trong trực giác của bạn rồi.',
+          },
+        ],
+    realityCheck: 'Vấn đề không nằm ở việc số phận trớ trêu, mà là bạn sợ cảm giác bước ra khỏi vùng an toàn hoặc sợ phải thừa nhận mình đã chọn sai.',
+    actionAdvice: [
+      'Dừng ngay việc suy diễn xem người khác nghĩ gì, tập trung 100% vào điều bản thân có thể kiểm soát.',
+      'Đặt ra deadline dứt khoát: nếu trong 7 ngày tới không có chuyển biến tích cực, chủ động chuyển hướng.',
+      'Tập trung chăm sóc bản thân: ngủ đủ giấc, ăn ngon, tập trung vào công việc và mục tiêu độc lập.',
+    ],
+    verdict: 'Cần tỉnh táo, ngẩng cao đầu và hành động dứt khoát!',
+    closingMessage: 'Nghe có vẻ thẳng thắn nhưng thà đau ngắn một lần để tỉnh ngộ còn hơn tự ru ngủ bản thân dài hạn nhé!',
+    mirrorView: {
+      partnerThoughts: 'Họ cảm thấy bạn đang dần nhìn thấu sự mập mờ của họ. Họ vừa muốn giữ sự chú ý, vừa sợ phải chịu trách nhiệm.',
+      defenseMechanism: 'Họ chọn cách im lặng hoặc phản hồi chậm rãi để kiểm soát nhịp độ, khiến bạn phải là người chủ động sốt ruột trước.',
+      hiddenFears: 'Họ sợ bị ràng buộc và sợ bạn nhận ra họ không hoàn hảo như những gì họ thể hiện ban đầu.',
+      whatTheyWishYouKnew: 'Đừng ép họ phải đưa ra câu trả lời lúc này, bởi nếu bị ép, câu trả lời chắc chắn sẽ là né tránh.',
+    },
+    threeDayActionPlan: [
+      {
+        day: 1,
+        title: 'Ngày 1: Tắt Thông Báo & Cắt Đứt Suy Diễn',
+        task: 'Tắt thông báo của đối phương, tuyệt đối không vào trang cá nhân soi story hay giờ online.',
+        advice: 'Mắt không thấy thì tim bớt đau, đầu óc bớt vẽ kịch bản viễn tưởng.',
+      },
+      {
+        day: 2,
+        title: 'Ngày 2: Chữa Lành & Chăm Sóc Bản Thân',
+        task: 'Dành 45 phút đi dạo hoặc tự thưởng một bữa ăn ngon bạn thèm từ lâu.',
+        advice: 'Bạn xứng đáng được yêu thương trước tiên từ chính bản thân mình.',
+      },
+      {
+        day: 3,
+        title: 'Ngày 3: Dứt Khoát Thiết Lập Ranh Giới',
+        task: 'Đưa ra quyết định: Nếu đối phương không có động thái rõ ràng, chính thức đóng lại chương này.',
+        advice: 'Một cánh cửa không mở thì đứng đợi trước bậc thềm chỉ làm bạn cảm lạnh.',
+      },
+    ],
+    shareableQuote: 'Người không trân trọng thời gian của mình thì mình nhẹ nhàng bước tiếp!',
+  };
+}
+
 // POST /api/tarot/reading
 app.post('/api/tarot/reading', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -213,146 +300,118 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
 10. "shareableQuote": 1 câu quote ngắn gọn (12 - 20 từ) cực kỳ deep, bén ngót, trúng tim đen để xuất thẻ ảnh khoe lên Threads/Instagram Story.
 `;
 
-    // If Reader is Madame Vi or Thầy Cả and Anthropic key exists -> try Claude
+    let readingData: any = null;
+
+    // 1. If Reader is Madame Vi or Thầy Cả and Anthropic key exists -> try Claude
     if (persona.engine === 'claude' && process.env.ANTHROPIC_API_KEY) {
-      const claudeData = await callClaudeAPI(persona.systemPrompt, promptText);
-      if (claudeData) {
-        res.json({ success: true, data: claudeData, engineUsed: 'claude' });
-        return;
+      try {
+        readingData = await callClaudeAPI(persona.systemPrompt, promptText);
+      } catch (claudeErr) {
+        console.warn('Claude API error, falling back to Gemini/Internal:', claudeErr);
       }
     }
 
-    if (!ai) {
-      // Mock witty response if no API key is configured
-      res.json({
-        success: true,
-        data: {
-          punchline: 'Lá bài bảo bạn đừng cố chấp tưới nước cho cái cây nhựa nữa, nó không nở hoa được đâu!',
-          generalOverview: `Nhìn vào năng lượng tụ bài này, ${persona.name} thấy bạn đang tự dựng lên một kịch bản quá lý tưởng so với thực tế đang diễn ra. Đã đến lúc gỡ bỏ lớp kính màu hồng để nhìn rõ bàn cờ.`,
-          cardsAnalysis: cards.map((c: any, i: number) => ({
-            cardName: c.nameVi || c.name,
-            position: c.positionName || `Lá ${i + 1}`,
-            interpretation: `Với lá ${c.nameVi || c.name} ${c.isReversed ? 'ngược' : 'xuôi'}, nó cho thấy một sự ngập ngừng và thiếu quyết đoán. Bạn biết rõ câu trả lời trong lòng rồi nhưng vẫn đang kiếm tìm một lý do từ bên ngoài để trì hoãn.`,
-          })),
-          realityCheck: 'Vấn đề không nằm ở việc số phận trớ trêu, mà là bạn sợ cảm giác bước ra khỏi vùng an toàn hoặc sợ phải thừa nhận mình đã chọn sai.',
-          actionAdvice: [
-            'Dừng ngay việc suy diễn xem người khác nghĩ gì, tập trung vào điều bạn có thể kiểm soát.',
-            'Đặt ra deadline cụ thể: nếu trong 7 ngày tới không có chuyển biến tích cực, hãy dứt khoát chuyển hướng.',
-            'Bớt lướt mạng xã hội soi xét đối phương hay so sánh bản thân, tập trung ngủ đủ giấc và kiếm tiền.',
-          ],
-          verdict: 'Cần tỉnh táo và hành động dứt khoát!',
-          closingMessage: 'Nghe có vẻ hơi đau lòng nhưng thà đau ngắn còn hơn tự ru ngủ bản thân dài hạn nhé!',
-          mirrorView: {
-            partnerThoughts: 'Họ cảm thấy bạn đang dần nhìn thấu sự mập mờ của họ. Họ vừa muốn giữ sự chú ý của bạn, vừa sợ phải chịu trách nhiệm.',
-            defenseMechanism: 'Họ chọn cách im lặng hoặc phản hồi chậm rãi để kiểm soát nhịp độ, khiến bạn phải là người chủ động sốt ruột trước.',
-            hiddenFears: 'Họ sợ bị ràng buộc và sợ bạn nhận ra họ không hoàn hảo hay hào nhoáng như những gì họ thể hiện ban đầu.',
-            whatTheyWishYouKnew: 'Đừng ép họ phải đưa ra câu trả lời lúc này, bởi nếu bị ép, câu trả lời chắc chắn sẽ là lời từ chối.',
-          },
-          threeDayActionPlan: [
-            {
-              day: 1,
-              title: 'Ngày 1: Tắt Thông Báo & Cắt Đứt Suy Diễn',
-              task: 'Tắt thông báo của người ấy, tuyệt đối không vào trang cá nhân soi story hay giờ online.',
-              advice: 'Mắt không thấy thì tim bớt đau đầu bớt vẽ kịch bản viễn tưởng.',
-            },
-            {
-              day: 2,
-              title: 'Ngày 2: Chữa Lành Bằng Bữa Ăn & Bản Thân',
-              task: 'Dành 45 phút đi dạo hoặc tự thưởng một món ăn ngon bạn thèm từ lâu.',
-              advice: 'Bạn xứng đáng được yêu thương trước tiên từ chính bản thân mình.',
-            },
-            {
-              day: 3,
-              title: 'Ngày 3: Dứt Khoát Thiết Lập Ranh Giới',
-              task: 'Đưa ra quyết định: Nếu đối phương không có động thái rõ ràng, chính thức đóng lại chương này.',
-              advice: 'Một cánh cửa không mở thì đứng đợi trước bậc thềm chỉ làm bạn cảm lạnh.',
-            },
-          ],
-          shareableQuote: 'Người không vì mình thì trời tru đất diệt, người không rep tin nhắn thì mình next!',
-        },
-      });
-      return;
-    }
-
-    // Call Gemini 3.8 Flash (Used for Bé Z, Chị Thảo & fallback for Madame Vi/Thầy Cả)
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: promptText,
-      config: {
-        systemInstruction: persona.systemPrompt,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            punchline: { type: Type.STRING },
-            generalOverview: { type: Type.STRING },
-            cardsAnalysis: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  cardName: { type: Type.STRING },
-                  position: { type: Type.STRING },
-                  interpretation: { type: Type.STRING },
-                },
-                required: ['cardName', 'position', 'interpretation'],
-              },
-            },
-            realityCheck: { type: Type.STRING },
-            actionAdvice: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
-            verdict: { type: Type.STRING },
-            closingMessage: { type: Type.STRING },
-            mirrorView: {
+    // 2. Try Gemini 2.5 Flash if no Claude data and ai client is configured
+    if (!readingData && ai) {
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: promptText,
+          config: {
+            systemInstruction: persona.systemPrompt,
+            responseMimeType: 'application/json',
+            responseSchema: {
               type: Type.OBJECT,
               properties: {
-                partnerThoughts: { type: Type.STRING },
-                defenseMechanism: { type: Type.STRING },
-                hiddenFears: { type: Type.STRING },
-                whatTheyWishYouKnew: { type: Type.STRING },
-              },
-              required: ['partnerThoughts', 'defenseMechanism', 'hiddenFears', 'whatTheyWishYouKnew'],
-            },
-            threeDayActionPlan: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  day: { type: Type.INTEGER },
-                  title: { type: Type.STRING },
-                  task: { type: Type.STRING },
-                  advice: { type: Type.STRING },
+                punchline: { type: Type.STRING },
+                generalOverview: { type: Type.STRING },
+                cardsAnalysis: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      cardName: { type: Type.STRING },
+                      position: { type: Type.STRING },
+                      interpretation: { type: Type.STRING },
+                    },
+                    required: ['cardName', 'position', 'interpretation'],
+                  },
                 },
-                required: ['day', 'title', 'task', 'advice'],
+                realityCheck: { type: Type.STRING },
+                actionAdvice: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                verdict: { type: Type.STRING },
+                closingMessage: { type: Type.STRING },
+                mirrorView: {
+                  type: Type.OBJECT,
+                  properties: {
+                    partnerThoughts: { type: Type.STRING },
+                    defenseMechanism: { type: Type.STRING },
+                    hiddenFears: { type: Type.STRING },
+                    whatTheyWishYouKnew: { type: Type.STRING },
+                  },
+                  required: ['partnerThoughts', 'defenseMechanism', 'hiddenFears', 'whatTheyWishYouKnew'],
+                },
+                threeDayActionPlan: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      day: { type: Type.INTEGER },
+                      title: { type: Type.STRING },
+                      task: { type: Type.STRING },
+                      advice: { type: Type.STRING },
+                    },
+                    required: ['day', 'title', 'task', 'advice'],
+                  },
+                },
+                shareableQuote: { type: Type.STRING },
               },
+              required: [
+                'punchline',
+                'generalOverview',
+                'cardsAnalysis',
+                'realityCheck',
+                'actionAdvice',
+                'verdict',
+                'closingMessage',
+                'mirrorView',
+                'threeDayActionPlan',
+                'shareableQuote',
+              ],
             },
-            shareableQuote: { type: Type.STRING },
           },
-          required: [
-            'punchline',
-            'generalOverview',
-            'cardsAnalysis',
-            'realityCheck',
-            'actionAdvice',
-            'verdict',
-            'closingMessage',
-            'mirrorView',
-            'threeDayActionPlan',
-            'shareableQuote',
-          ],
-        },
-      },
-    });
+        });
 
-    const parsedData = JSON.parse(response.text || '{}');
-    res.json({ success: true, data: parsedData, engineUsed: 'gemini' });
+        if (response.text) {
+          readingData = JSON.parse(response.text);
+        }
+      } catch (geminiError) {
+        console.warn('Gemini generateContent error, falling back to smart template generator:', geminiError);
+      }
+    }
+
+    // 3. Fallback smart generator: guaranteed to succeed, personalized to persona and cards
+    if (!readingData) {
+      readingData = generateFallbackReading(persona, question, cards, topic, userContext);
+    }
+
+    res.json({ success: true, data: readingData });
   } catch (error: any) {
-    console.error('Error generating tarot reading:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Không thể tạo bài đọc Tarot vào lúc này.',
+    console.error('Error generating tarot reading, returning fallback:', error);
+    const persona = READER_PERSONAS[req.body?.readerId] || READER_PERSONAS['madame-realist'];
+    const fallback = generateFallbackReading(
+      persona,
+      req.body?.question || '',
+      req.body?.cards || [],
+      req.body?.topic || 'general',
+      req.body?.userContext || ''
+    );
+    res.json({
+      success: true,
+      data: fallback,
     });
   }
 });
@@ -385,28 +444,33 @@ Người hỏi vừa hỏi thêm: "${message}"
 Hãy trả lời trực tiếp người hỏi bằng phong cách ${persona.name}: sắc sảo, thực tế, hài hước, thẳng thắn, không giáo điều, chỉ rõ điểm mù tâm lý và đưa ra gợi ý hành động. Độ dài khoảng 2-4 đoạn văn vừa vặn, cuốn hút, nói trúng tim đen.
 `;
 
-    if (!ai) {
-      res.json({
-        success: true,
-        reply: `Haizz, tôi biết ngay bạn sẽ hỏi câu này mà! Để tôi nói cho bạn nghe một sự thật: bạn đang cố bấu víu vào một tín hiệu 0.1% để phủ nhận 99.9% sự thờ ơ của đối phương. Lá bài đã lật rồi, sự thật cũng đã phơi bày. Việc của bạn bây giờ là ngẩng cao đầu, tắt thông báo điện thoại và tập trung vào cuộc đời của chính mình!`,
-      });
-      return;
+    let replyText = '';
+
+    if (ai) {
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: promptText,
+          config: {
+            systemInstruction: persona.systemPrompt,
+          },
+        });
+        replyText = response.text || '';
+      } catch (err) {
+        console.warn('Gemini chat error, fallback to witty canned reply:', err);
+      }
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: promptText,
-      config: {
-        systemInstruction: persona.systemPrompt,
-      },
-    });
+    if (!replyText) {
+      replyText = `Haizz, tôi biết ngay bạn sẽ băn khoăn câu này mà! Để ${persona.name} nói thật một câu nhé: bạn đang cố bấu víu vào một hy vọng mỏng manh để trì hoãn quyết định dứt khoát. Lá bài đã lật rồi, sự thật cũng đã rõ. Việc của bạn lúc này là ngẩng cao đầu, hít một hơi thật sâu và tập trung nâng niu cuộc đời của chính mình!`;
+    }
 
-    res.json({ success: true, reply: response.text });
+    res.json({ success: true, reply: replyText });
   } catch (error: any) {
-    console.error('Error in tarot chat:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Không thể gửi câu hỏi lúc này.',
+    console.error('Error in tarot chat, using safe reply:', error);
+    res.json({
+      success: true,
+      reply: 'Reader đang tập trung suy ngẫm năng lượng tụ bài của bạn. Tóm lại một câu: đừng tiếp tục thỏa hiệp với những điều làm tổn thương lòng tự trọng của mình nữa nhé!',
     });
   }
 });
@@ -418,8 +482,8 @@ app.post('/api/tarot/daily', async (req: Request, res: Response): Promise<void> 
     const persona = READER_PERSONAS[readerId] || READER_PERSONAS['madame-realist'];
 
     const prompt = `
-Người dùng rút lá bài ngày hôm nay: ${card.nameVi || card.name} (${card.isReversed ? 'Ngược' : 'Xuôi'}).
-Ý nghĩa gốc: ${card.meaning || ''}. Từ khóa: ${card.keywords || ''}.
+Người dùng rút lá bài ngày hôm nay: ${card?.nameVi || card?.name || 'Tarot Card'} (${card?.isReversed ? 'Ngược' : 'Xuôi'}).
+Ý nghĩa gốc: ${card?.meaning || ''}. Từ khóa: ${card?.keywords || ''}.
 
 Hãy viết thông điệp "Thông điệp Thực Tế Hôm Nay" cho người này theo phong cách ${persona.name} (sắc sảo, thực tế, hài hước, tỉnh đòn):
 1. Dự báo năng lượng trong ngày (1-2 câu dí dỏm).
@@ -427,40 +491,55 @@ Hãy viết thông điệp "Thông điệp Thực Tế Hôm Nay" cho người n�
 3. "Lời khuyên vàng" (Hành động chuẩn chỉnh để ngày hôm nay êm đẹp, tiền về túi, lòng an yên).
 `;
 
-    if (!ai) {
-      res.json({
-        success: true,
-        data: {
-          energy: `Hôm nay năng lượng lá ${card.nameVi || card.name} nhắc bạn: bớt ôm đồm chuyện bao đồng, ai nhờ vả vô lý thì mạnh dạn nói 'Không'.`,
-          trapToAvoid: 'Đừng shopping lúc đang stress và đừng rep tin nhắn người yêu cũ sau 11h đêm!',
-          goldenAdvice: 'Làm xong việc của mình rồi về sớm, ăn một bữa thật ngon và ngủ một giấc thật sâu.',
-        },
-      });
-      return;
+    let dailyData: any = null;
+
+    if (ai) {
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+          config: {
+            systemInstruction: persona.systemPrompt,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                energy: { type: Type.STRING },
+                trapToAvoid: { type: Type.STRING },
+                goldenAdvice: { type: Type.STRING },
+              },
+              required: ['energy', 'trapToAvoid', 'goldenAdvice'],
+            },
+          },
+        });
+
+        if (response.text) {
+          dailyData = JSON.parse(response.text);
+        }
+      } catch (err) {
+        console.warn('Gemini daily card error, fallback to preset:', err);
+      }
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction: persona.systemPrompt,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            energy: { type: Type.STRING },
-            trapToAvoid: { type: Type.STRING },
-            goldenAdvice: { type: Type.STRING },
-          },
-          required: ['energy', 'trapToAvoid', 'goldenAdvice'],
-        },
+    if (!dailyData) {
+      dailyData = {
+        energy: `Hôm nay năng lượng lá ${card?.nameVi || card?.name || 'Tarot'} nhắc bạn: bớt ôm đồm chuyện bao đồng, ai nhờ vả vô lý thì mạnh dạn nói 'Không'.`,
+        trapToAvoid: 'Đừng mua sắm lúc đang stress và đừng rep tin nhắn người yêu cũ lúc đêm muộn!',
+        goldenAdvice: 'Làm xong việc của mình rồi về sớm, ăn một bữa thật ngon và ngủ một giấc thật sâu.',
+      };
+    }
+
+    res.json({ success: true, data: dailyData });
+  } catch (error: any) {
+    console.error('Error generating daily tarot, using fallback:', error);
+    res.json({
+      success: true,
+      data: {
+        energy: 'Năng lượng hôm nay nhắc bạn giữ tâm thế bình thản trước mọi thị phi bên ngoài.',
+        trapToAvoid: 'Tránh tranh cãi hơn thua với người không cùng tần số.',
+        goldenAdvice: 'Tập trung vào hơi thở, công việc và mục tiêu của chính bạn.',
       },
     });
-
-    res.json({ success: true, data: JSON.parse(response.text || '{}') });
-  } catch (error: any) {
-    console.error('Error generating daily tarot:', error);
-    res.status(500).json({ success: false, error: error.message });
   }
 });
 

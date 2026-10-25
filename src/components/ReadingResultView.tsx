@@ -186,37 +186,37 @@ export const ReadingResultView: React.FC<ReadingResultViewProps> = ({
         </div>
 
         {/* THE PUNCHLINE (Hero highlight) */}
-        <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-red-500/10 to-amber-500/15 border-2 border-amber-400/40 relative">
-          <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
-            <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
-            <span>Lời Phán Sắc Sảo &amp; Đi Vào Lòng Người</span>
+        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-purple-500/15 border border-[#FCD34D]/40 relative">
+          <div className="flex items-center gap-2 text-[#FCD34D] text-xs font-bold uppercase tracking-wider mb-1">
+            <Flame className="w-4 h-4 text-[#EC4899]" />
+            <span>Thông Điệp Trọng Tâm</span>
           </div>
-          <p className="text-base sm:text-xl font-serif font-bold text-amber-200 leading-snug">
+          <p className="text-base sm:text-xl font-bold text-[#F3F4F6] leading-snug">
             "{reading.punchline}"
           </p>
         </div>
       </div>
 
       {/* FEATURE 1: PERSPECTIVE SWITCH (GÓC NHÌN BẢN THÂN VS GÓC NHÌN ĐỐI PHƯƠNG / THE MIRROR VIEW) */}
-      <div className="rounded-3xl bg-slate-900/90 border border-amber-500/30 p-6 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+      <div className="rounded-2xl bg-slate-900/90 border border-[#9333EA]/30 p-5 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3.5 mb-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
-              <Eye className="w-4 h-4" />
-              <span>Chuyển Đổi Lăng Kính Tâm Lý (Perspective Shift)</span>
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FCD34D]">
+              <Eye className="w-3.5 h-3.5 text-[#EC4899]" />
+              <span>Góc Nhìn Luận Giải</span>
             </div>
-            <h4 className="text-base font-bold text-white mt-1">
-              Bạn Muốn Xem Dưới Góc Nhìn Của Ai?
+            <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+              Lựa Chọn Lăng Kính Tâm Lý
             </h4>
           </div>
 
           {/* Toggle pill buttons */}
-          <div className="flex rounded-2xl bg-slate-950 p-1 border border-slate-800 self-start sm:self-auto">
+          <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800 self-start sm:self-auto">
             <button
               onClick={() => setActivePerspective('standard')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activePerspective === 'standard'
-                  ? 'bg-amber-500 text-slate-950 shadow-md'
+                  ? 'bg-gradient-to-r from-[#9333EA] to-[#EC4899] text-white shadow-md'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -224,25 +224,22 @@ export const ReadingResultView: React.FC<ReadingResultViewProps> = ({
             </button>
             <button
               onClick={() => setActivePerspective('mirror')}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activePerspective === 'mirror'
                   ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
                   : 'text-purple-300 hover:text-white'
               }`}
             >
-              <span>🪞 Góc Nhìn Đối Phương (The Mirror View)</span>
-              <span className="text-[9px] bg-amber-400 text-slate-950 px-1 rounded font-black">
-                HOT
-              </span>
+              <span>🪞 Đọc Vị Đối Phương</span>
             </button>
           </div>
         </div>
 
         {activePerspective === 'mirror' ? (
           /* THE MIRROR VIEW: Đọc suy nghĩ đối phương */
-          <div className="space-y-4 animate-fade-in">
-            <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 text-xs text-purple-200">
-              💡 <strong>The Mirror View:</strong> Phân tích các lá bài dưới lăng kính tâm lý hành vi của <em>người thứ hai</em>. Bóc trần những lớp phòng thủ, cảm xúc thật hoặc nỗi sợ ngầm mà họ không dám nói ra với bạn.
+          <div className="space-y-3.5 animate-fade-in">
+            <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-purple-200">
+              💡 <strong>Đọc vị đối phương:</strong> Phân tích cảm xúc thật, lớp phòng thủ và nỗi sợ ngầm họ đang giấu bạn.
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

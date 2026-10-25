@@ -128,16 +128,16 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Spread Slots Area */}
-      <div className="w-full max-w-5xl py-6 px-4">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{spread.name} ({spread.cardCount} lá)</span>
+      <div className="w-full max-w-5xl py-4 px-4">
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[#FCD34D] text-xs font-semibold uppercase tracking-wider mb-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#EC4899]" />
+            <span>{spread.name} • {spread.cardCount} lá</span>
           </div>
-          <p className="text-xs text-slate-400 max-w-lg mx-auto">
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
             {isComplete
-              ? 'Tất cả các lá bài đã được an bài. Hãy bấm để Reader luận giải sự thật!'
-              : `Hãy chạm vào lá bài bên dưới hoặc bấm "Rút Nhanh" để lật mở từng vị trí (${drawnCards.length}/${spread.cardCount})`}
+              ? 'Tụ bài đã an bài. Chạm nút bên dưới để xem luận giải!'
+              : `Chạm lá bài để lật mở (${drawnCards.length}/${spread.cardCount})`}
           </p>
         </div>
 
@@ -158,15 +158,12 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
             return (
               <div
                 key={pos.index}
-                className="flex flex-col items-center bg-slate-900/60 border border-amber-500/15 rounded-2xl p-3 backdrop-blur-sm shadow-xl transition-all hover:border-amber-500/30"
+                className="flex flex-col items-center bg-slate-900/60 border border-[#9333EA]/20 rounded-2xl p-3 backdrop-blur-sm shadow-xl transition-all hover:border-[#9333EA]/40"
               >
                 {/* Slot Position Title */}
-                <div className="w-full text-center mb-3">
-                  <div className="text-xs font-semibold text-amber-400 line-clamp-1">
+                <div className="w-full text-center mb-2">
+                  <div className="text-xs font-semibold text-[#FCD34D] line-clamp-1">
                     {index + 1}. {pos.name}
-                  </div>
-                  <div className="text-[10px] text-slate-400 line-clamp-2 mt-0.5">
-                    {pos.description}
                   </div>
                 </div>
 
@@ -180,13 +177,13 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
                 ) : (
                   <button
                     onClick={handleDrawCard}
-                    className="w-36 h-56 sm:w-36 sm:h-56 rounded-xl border-2 border-dashed border-amber-500/30 hover:border-amber-400 bg-amber-500/5 hover:bg-amber-500/10 flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all duration-200 group"
+                    className="w-36 h-56 sm:w-36 sm:h-56 rounded-xl border-2 border-dashed border-[#9333EA]/30 hover:border-[#FCD34D] bg-[#9333EA]/5 hover:bg-[#9333EA]/10 flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all duration-200 group"
                   >
-                    <div className="w-10 h-10 rounded-full border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:border-amber-400 transition-all">
+                    <div className="w-10 h-10 rounded-full border border-[#9333EA]/30 flex items-center justify-center text-[#FCD34D] group-hover:scale-110 group-hover:border-[#FCD34D] transition-all">
                       <Sparkles className="w-5 h-5" />
                     </div>
-                    <span className="text-xs font-medium text-amber-200 mt-3">
-                      Bốc lá thứ {index + 1}
+                    <span className="text-xs font-medium text-slate-200 mt-3">
+                      Lá thứ {index + 1}
                     </span>
                     <span className="text-[10px] text-slate-400 mt-1">
                       Chạm để rút
@@ -200,7 +197,7 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
       </div>
 
       {/* Action Bar & Fanned Deck */}
-      <div className="w-full max-w-2xl px-4 py-4 mt-2 flex flex-col items-center">
+      <div className="w-full max-w-2xl px-4 py-2 flex flex-col items-center">
         {!isComplete ? (
           <div className="flex flex-col items-center w-full">
             {/* Interactive Fanned Deck Preview */}
@@ -216,60 +213,60 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
                       transform: `rotate(${rotation}deg) translateY(${translateY}px)`,
                       zIndex: i,
                     }}
-                    className={`absolute w-12 h-20 rounded-md border border-amber-500/40 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 shadow-md cursor-pointer hover:-translate-y-2 hover:border-amber-300 transition-all duration-200 flex items-center justify-center ${
+                    className={`absolute w-12 h-20 rounded-md border border-[#9333EA]/40 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 shadow-md cursor-pointer hover:-translate-y-2 hover:border-[#FCD34D] transition-all duration-200 flex items-center justify-center ${
                       isShuffling ? 'animate-pulse' : ''
                     }`}
                   >
-                    <div className="text-[10px] text-amber-400/50">✧</div>
+                    <div className="text-[10px] text-[#FCD34D]/50">✧</div>
                   </div>
                 );
               })}
             </div>
 
             {/* Deck buttons */}
-            <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center gap-2.5 mt-3">
               <button
                 onClick={handleShuffle}
                 disabled={isShuffling}
-                className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Shuffle className={`w-3.5 h-3.5 ${isShuffling ? 'animate-spin' : ''}`} />
-                <span>Xào Lại Bài</span>
+                <span>Xào Lại</span>
               </button>
 
               <button
                 onClick={handleDrawCard}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#9333EA] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-purple-900/30 active:scale-95 transition-all cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>Rút Lá Kế Tiếp</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#FCD34D]" />
+                <span>Rút Tiếp</span>
               </button>
 
               <button
                 onClick={handleAutoDrawAll}
-                className="px-4 py-2 rounded-xl bg-indigo-900/40 hover:bg-indigo-800/60 border border-indigo-500/40 text-indigo-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-500/40 text-indigo-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Rút Nhanh Tất Cả</span>
+                <span>Rút Nhanh</span>
               </button>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 w-full">
+          <div className="flex flex-col items-center gap-2.5 w-full">
             <button
               onClick={() => onCardsReady(drawnCards)}
               disabled={isGeneratingReading}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl shadow-amber-500/30 active:scale-98 transition-all cursor-pointer disabled:opacity-60"
+              className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-gradient-to-r from-[#9333EA] via-[#EC4899] to-[#9333EA] hover:opacity-95 text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-purple-900/40 active:scale-98 transition-all cursor-pointer disabled:opacity-60"
             >
               {isGeneratingReading ? (
                 <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                  <span>Reader Đang Bóc Mẽ &amp; Soi Tụ Bài...</span>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Đang Luận Giải...</span>
                 </>
               ) : (
                 <>
-                  <Eye className="w-5 h-5" />
-                  <span>Xem Luận Giải Sắc Sảo &amp; Thực Tế Ngay</span>
+                  <Eye className="w-4 h-4 text-[#FCD34D]" />
+                  <span>Xem Luận Giải Ngay</span>
                 </>
               )}
             </button>
@@ -277,9 +274,9 @@ export const DeckBoard: React.FC<DeckBoardProps> = ({
             <button
               onClick={handleShuffle}
               disabled={isGeneratingReading}
-              className="text-xs text-slate-400 hover:text-amber-300 underline underline-offset-4 cursor-pointer"
+              className="text-xs text-slate-400 hover:text-[#FCD34D] cursor-pointer"
             >
-              Bốc lại tụ bài khác
+              Rút lại tụ bài khác
             </button>
           </div>
         )}
