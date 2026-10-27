@@ -48,16 +48,6 @@ export const ReadingResultView: React.FC<ReadingResultViewProps> = ({
   // Active view mode: 'standard' | 'mirror' (The Mirror View - Góc nhìn đối phương)
   const [activePerspective, setActivePerspective] = useState<'standard' | 'mirror'>('standard');
 
-  // 3-day action checklist checked items
-  const [completedDays, setCompletedDays] = useState<Record<number, boolean>>({});
-
-  const toggleDayCheck = (day: number) => {
-    setCompletedDays((prev) => ({
-      ...prev,
-      [day]: !prev[day],
-    }));
-  };
-
   // Send message to reader
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +110,6 @@ export const ReadingResultView: React.FC<ReadingResultViewProps> = ({
   };
 
   const mirror = reading.mirrorView;
-  const actionPlan = reading.threeDayActionPlan || [];
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-4 flex flex-col gap-8">
@@ -361,80 +350,27 @@ export const ReadingResultView: React.FC<ReadingResultViewProps> = ({
         </div>
       </div>
 
-      {/* FEATURE 2: LIỆU PHÁP CHỮA LÀNH & ACTION CHECKLIST 3 NGÀY TỚI */}
-      <div className="rounded-3xl bg-gradient-to-br from-emerald-950/20 via-slate-900 to-slate-950 border border-emerald-500/30 p-6 sm:p-7 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4 mb-5">
-          <div className="flex items-center gap-2.5">
-            <CalendarCheck className="w-5 h-5 text-emerald-400" />
-            <div>
-              <h4 className="text-base font-bold text-white">
-                Liệu Pháp Chữa Lành &amp; Action Checklist 3 Ngày Tới
-              </h4>
-              <p className="text-xs text-slate-400">
-                Không chỉ đoán tương lai mà còn cho bạn bản kế hoạch hành động gỡ rối tâm lý cụ thể.
-              </p>
-            </div>
+      {/* Lời Khuyên Hành Động & Kết Luận */}
+      <div className="rounded-2xl bg-gradient-to-br from-[#9333EA]/15 via-slate-900 to-[#120E1E] border border-[#9333EA]/30 p-5 sm:p-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#FCD34D]" />
+            <h4 className="text-sm sm:text-base font-bold text-white">
+              Định Hướng &amp; Lời Khuyên Hành Động
+            </h4>
           </div>
-
-          <div className="text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full font-bold self-start sm:self-auto">
-            {Object.values(completedDays).filter(Boolean).length}/3 Việc Đã Xong
-          </div>
-        </div>
-
-        {/* 3 Days Steps List */}
-        <div className="space-y-3.5">
-          {actionPlan.map((step) => {
-            const isDone = completedDays[step.day] || false;
-            return (
-              <div
-                key={step.day}
-                onClick={() => toggleDayCheck(step.day)}
-                className={`flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
-                  isDone
-                    ? 'bg-emerald-950/30 border-emerald-500/50 opacity-90'
-                    : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                {/* Custom Checkbox */}
-                <div
-                  className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors border ${
-                    isDone
-                      ? 'bg-emerald-500 border-emerald-400 text-slate-950'
-                      : 'border-slate-600 bg-slate-900'
-                  }`}
-                >
-                  {isDone && <Check className="w-4 h-4 stroke-[3]" />}
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">
-                      {step.title}
-                    </span>
-                    {isDone && (
-                      <span className="text-[10px] text-emerald-300 bg-emerald-500/20 px-2 py-0.2 rounded-full font-bold">
-                        Đã Hoàn Thành ✓
-                      </span>
-                    )}
-                  </div>
-                  <p className={`text-xs sm:text-sm text-slate-200 leading-relaxed font-medium ${isDone ? 'line-through text-slate-400' : ''}`}>
-                    {step.task}
-                  </p>
-                  <p className="text-[11px] text-amber-300/80 italic mt-1">
-                    💡 Lời khuyên: {step.advice}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Verdict Banner */}
-        <div className="mt-5 pt-4 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <span className="text-xs text-slate-400">Kết luận dứt khoát:</span>
-          <span className="text-xs font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+          <span className="text-xs font-bold text-[#FCD34D] bg-[#9333EA]/25 border border-[#9333EA]/40 px-3 py-1 rounded-full self-start sm:self-auto">
             {reading.verdict}
           </span>
+        </div>
+
+        <div className="space-y-2.5">
+          {reading.actionAdvice && reading.actionAdvice.map((advice, i) => (
+            <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-white/5 border border-white/5 text-xs sm:text-sm text-slate-200">
+              <span className="text-[#EC4899] font-bold mt-0.5">✦</span>
+              <span className="leading-relaxed">{advice}</span>
+            </div>
+          ))}
         </div>
       </div>
 

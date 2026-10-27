@@ -67,6 +67,16 @@ export default function App() {
   const todayStr = new Date().toISOString().slice(0, 10);
   const hasDrawnDailyToday = lastDailyDate === todayStr;
 
+  // Persistent user ID for banking webhook matching
+  const [userId] = useState<string>(() => {
+    let uid = localStorage.getItem('tarot_user_id');
+    if (!uid || !/^\d+$/.test(uid)) {
+      uid = Math.floor(10000 + Math.random() * 90000).toString();
+      localStorage.setItem('tarot_user_id', uid);
+    }
+    return uid;
+  });
+
   // Sync state to local storage
   useEffect(() => {
     localStorage.setItem('tarot_user_credits', credits.toString());
@@ -79,6 +89,24 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('tarot_journal', JSON.stringify(savedReadings));
   }, [savedReadings]);
+
+  // Sync with server Database / banking webhook status on load
+  useEffect(() => {
+    if (!userId) return;
+    fetch(`/api/user/status?userId=${encodeURIComponent(userId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.user) {
+          if (data.user.isVip) {
+            setIsVip(true);
+          }
+          if (typeof data.user.credits === 'number' && data.user.credits > credits) {
+            setCredits(data.user.credits);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [userId]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -164,26 +192,6 @@ export default function App() {
         hiddenFears: 'Họ sợ bị ràng buộc và sợ bạn phát hiện ra họ không hoàn hảo như những gì họ thể hiện ban đầu.',
         whatTheyWishYouKnew: 'Đừng ép họ phải đưa ra câu trả lời lúc này; nếu bị ép, câu trả lời sẽ là né tránh hoặc từ chối.',
       },
-      threeDayActionPlan: [
-        {
-          day: 1,
-          title: 'Ngày 1: Tắt Thông Báo & Cắt Đứt Suy Diễn',
-          task: 'Tắt thông báo của đối phương, không vào trang cá nhân soi story hay trạng thái online.',
-          advice: 'Mắt không thấy thì tâm bình an, bớt vẽ kịch bản viễn tưởng.',
-        },
-        {
-          day: 2,
-          title: 'Ngày 2: Chăm Sóc Bản Thân',
-          task: 'Tự thưởng một bữa ăn yêu thích hoặc đi dạo 30 phút hít thở không khí.',
-          advice: 'Năng lượng tích cực chỉ trở lại khi bạn biết trân trọng chính mình.',
-        },
-        {
-          day: 3,
-          title: 'Ngày 3: Thiết Lập Ranh Giới Dứt Khoát',
-          task: 'Nếu đối phương không có động thái rõ ràng, chính thức đóng lại chương này và tiến lên.',
-          advice: 'Cánh cửa không mở thì đứng đợi trước bậc thềm chỉ làm bạn cảm lạnh.',
-        },
-      ],
       shareableQuote: 'Người không trân trọng thời gian của mình thì mình nhẹ nhàng bước tiếp!',
     };
   };
@@ -695,8 +703,7 @@ export default function App() {
               <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-[#FCD34D]" /> 100% Thực Tế &amp; Logic</span>
               <span className="hidden sm:inline text-white/20">•</span>
               <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5 text-[#EC4899]" /> Đọc Vị Đối Phương</span>
-              <span className="hidden sm:inline text-white/20">•</span>
-              <span className="flex items-center gap-1.5"><CalendarCheck className="w-3.5 h-3.5 text-emerald-400" /> Action Plan 3 Ngày</span>
+              <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-emerald-400" /> Thanh Toán VNPAY / QR Tự Động</span>
             </div>
           </div>
         )}

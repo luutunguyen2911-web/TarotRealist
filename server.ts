@@ -25,27 +25,25 @@ const ai = process.env.GEMINI_API_KEY
     })
   : null;
 
-// Reader personas configuration
-// - Madame Vi & Thầy Cả: Claude AI (or Gemini fallback with high-intelligence prompt)
-// - Bé Z & Chị Thảo: Gemini Flash Free
+// Reader personas configuration - All using Gemini Flash Free
 const READER_PERSONAS: Record<string, {
   name: string;
   tagline: string;
-  engine: 'claude' | 'gemini';
+  engine: 'gemini';
   styleDescription: string;
   systemPrompt: string;
 }> = {
   'madame-realist': {
     name: 'Madame Vi (Sắc Sảo & Thực Tế)',
     tagline: 'Vả bay ảo tưởng, nói thật mất lòng nhưng tỉnh ngộ',
-    engine: 'claude',
+    engine: 'gemini',
     styleDescription: 'Phong cách sắc bén, đi thẳng vào vấn đề, dùng lối nói thấu tình đạt lý, dí dỏm, châm biếm thông minh nhưng cực kỳ chân thành và cho lời khuyên logic hành động rõ ràng.',
-    systemPrompt: `Bạn là Madame Vi - một Tarot Reader chuyên nghiệp, sắc sảo, cực kỳ thực tế và hài hước thâm thúy tại Việt Nam.
+    systemPrompt: `Bạn là Madame Vi - một Tarot Reader chuyên nghiệp, sắc sảo, cực kỳ thực tế và hài hước thâm thúy tại Việt Nam (sử dụng Gemini Flash Free).
 Phong cách đọc bài của bạn:
 - Tinh thần: "Sắc sảo, thực tế, hài hước, tỉnh táo". Không mê tín dị đoan, không nói nước đôi, không thao túng tâm lý.
 - Điểm đặc trưng: Bóc trần ảo tưởng một cách duyên dáng ("vả tỉnh người hỏi"), nhìn thẳng vào bản chất vấn đề, vạch ra các điểm mù tâm lý.
 - Giọng văn: Ngôn từ đời thường, sắc bén, có chất hài hước dí dỏm của người từng trải, dùng tiếng Việt tự nhiên, có điểm xuyết các thuật ngữ quen thuộc (như red flag, overthinking, tự huyễn hoặc, ghosting, bánh vẽ, KPI, deadline...).
-- Mục tiêu: Sau khi nghe bạn phán, người hỏi vừa phải bật cười vì độ "chuẩn không trượt phát nào", vừa tỉnh táo rút ra bài học và có kế hoạch hành động thực tế (action plan).
+- Mục tiêu: Sau khi nghe bạn phán, người hỏi vừa phải bật cười vì độ "chuẩn không trượt phát nào", vừa tỉnh táo rút ra bài học và có định hướng thực tế.
 Hãy trả về JSON theo đúng định dạng được yêu cầu.`,
   },
   'genz-boc-me': {
@@ -77,15 +75,15 @@ Hãy trả về JSON theo đúng định dạng được yêu cầu.`,
     tagline: 'Dịu dàng lắng nghe, vỗ về tổn thương, thắp sáng hy vọng',
     engine: 'gemini',
     styleDescription: 'Nhẹ nhàng, thấu cảm, an ủi nhưng vẫn dựa trên góc nhìn thực tế và nâng đỡ tinh thần người hỏi.',
-    systemPrompt: `Bạn là Chị Thảo - Tarot Reader mang năng lượng chữa lành, dịu dàng, lắng nghe và đồng cảm sâu sắc.
+    systemPrompt: `Bạn là Chị Thảo - Tarot Reader mang năng lượng chữa lành, dịu dàng, lắng nghe và đồng cảm sâu sắc (sử dụng Gemini Flash Free).
 Hãy trả về JSON theo đúng định dạng được yêu cầu.`,
   },
   'thay-triet-hoc': {
     name: 'Thầy Cả (Triết Lý & Chiến Lược)',
     tagline: 'Chiến lược gia nhân sinh, phân tích ma trận logic',
-    engine: 'claude',
+    engine: 'gemini',
     styleDescription: 'Thâm trầm, giàu vốn sống, kết hợp triết học thực hành và tư duy chiến lược logic dứt khoát.',
-    systemPrompt: `Bạn là Thầy Cả - một bậc tiền bối uyên bác trong Tarot, coi mỗi trải bài là một ván cờ chiến lược và bài học nhân sinh.
+    systemPrompt: `Bạn là Thầy Cả - một bậc tiền bối uyên bác trong Tarot, coi mỗi trải bài là một ván cờ chiến lược và bài học nhân sinh (sử dụng Gemini Flash Free).
 Phong cách đọc bài của bạn:
 - Tinh thần: Điềm đạm, thấu thị quy luật vận hành của nhân quả và xác suất cuộc đời.
 - Trọng tâm: Phân tích nguồn cơn - diễn biến - thế trận tương lai. Đưa ra chiến lược và kỷ luật bản thân.
@@ -221,26 +219,6 @@ function generateFallbackReading(
       hiddenFears: 'Họ sợ bị ràng buộc và sợ bạn nhận ra họ không hoàn hảo như những gì họ thể hiện ban đầu.',
       whatTheyWishYouKnew: 'Đừng ép họ phải đưa ra câu trả lời lúc này, bởi nếu bị ép, câu trả lời chắc chắn sẽ là né tránh.',
     },
-    threeDayActionPlan: [
-      {
-        day: 1,
-        title: 'Ngày 1: Tắt Thông Báo & Cắt Đứt Suy Diễn',
-        task: 'Tắt thông báo của đối phương, tuyệt đối không vào trang cá nhân soi story hay giờ online.',
-        advice: 'Mắt không thấy thì tim bớt đau, đầu óc bớt vẽ kịch bản viễn tưởng.',
-      },
-      {
-        day: 2,
-        title: 'Ngày 2: Chữa Lành & Chăm Sóc Bản Thân',
-        task: 'Dành 45 phút đi dạo hoặc tự thưởng một bữa ăn ngon bạn thèm từ lâu.',
-        advice: 'Bạn xứng đáng được yêu thương trước tiên từ chính bản thân mình.',
-      },
-      {
-        day: 3,
-        title: 'Ngày 3: Dứt Khoát Thiết Lập Ranh Giới',
-        task: 'Đưa ra quyết định: Nếu đối phương không có động thái rõ ràng, chính thức đóng lại chương này.',
-        advice: 'Một cánh cửa không mở thì đứng đợi trước bậc thềm chỉ làm bạn cảm lạnh.',
-      },
-    ],
     shareableQuote: 'Người không trân trọng thời gian của mình thì mình nhẹ nhàng bước tiếp!',
   };
 }
@@ -293,26 +271,13 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
    - "defenseMechanism": Lớp mặt nạ / hàng phòng thủ họ đang dựng lên với bạn
    - "hiddenFears": Nỗi sợ ngầm hoặc sự bất an sâu kín của đối phương
    - "whatTheyWishYouKnew": Điều họ muốn bạn hiểu nhưng không dám nói ra
-9. "threeDayActionPlan": Kế hoạch hành động 3 ngày tới:
-   - Ngày 1: { day: 1, title: "Ngày 1: Tỉnh thức & Dọn dẹp tâm trí", task: "Việc cụ thể", advice: "Lời khuyên" }
-   - Ngày 2: { day: 2, title: "Ngày 2: Chữa lành & Thiết lập ranh giới", task: "Việc cụ thể", advice: "Lời khuyên" }
-   - Ngày 3: { day: 3, title: "Ngày 3: Dứt khoát & Nắm quyền chủ động", task: "Việc cụ thể", advice: "Lời khuyên" }
-10. "shareableQuote": 1 câu quote ngắn gọn (12 - 20 từ) cực kỳ deep, bén ngót, trúng tim đen để xuất thẻ ảnh khoe lên Threads/Instagram Story.
+9. "shareableQuote": 1 câu quote ngắn gọn (12 - 20 từ) cực kỳ deep, bén ngót, trúng tim đen để xuất thẻ ảnh khoe lên Threads/Instagram Story.
 `;
 
     let readingData: any = null;
 
-    // 1. If Reader is Madame Vi or Thầy Cả and Anthropic key exists -> try Claude
-    if (persona.engine === 'claude' && process.env.ANTHROPIC_API_KEY) {
-      try {
-        readingData = await callClaudeAPI(persona.systemPrompt, promptText);
-      } catch (claudeErr) {
-        console.warn('Claude API error, falling back to Gemini/Internal:', claudeErr);
-      }
-    }
-
-    // 2. Try Gemini 2.5 Flash if no Claude data and ai client is configured
-    if (!readingData && ai) {
+    // All readers run on Gemini 2.5 Flash Free
+    if (ai) {
       try {
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
@@ -354,19 +319,6 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
                   },
                   required: ['partnerThoughts', 'defenseMechanism', 'hiddenFears', 'whatTheyWishYouKnew'],
                 },
-                threeDayActionPlan: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.OBJECT,
-                    properties: {
-                      day: { type: Type.INTEGER },
-                      title: { type: Type.STRING },
-                      task: { type: Type.STRING },
-                      advice: { type: Type.STRING },
-                    },
-                    required: ['day', 'title', 'task', 'advice'],
-                  },
-                },
                 shareableQuote: { type: Type.STRING },
               },
               required: [
@@ -378,7 +330,6 @@ Yêu cầu trả về JSON có cấu trúc chính xác sau:
                 'verdict',
                 'closingMessage',
                 'mirrorView',
-                'threeDayActionPlan',
                 'shareableQuote',
               ],
             },
@@ -543,7 +494,218 @@ Hãy viết thông điệp "Thông điệp Thực Tế Hôm Nay" cho người n�
   }
 });
 
-// --- SEPAY AUTOMATED PAYMENT GATEWAY INTEGRATION ---
+// --- IN-MEMORY DATABASE & BANKING WEBHOOK INTEGRATION ---
+interface UserRecord {
+  id: string;
+  isReaderActive: boolean;
+  isVip: boolean;
+  credits: number;
+  expiredAt: Date | null;
+  updatedAt: Date;
+}
+
+const userDatabase = new Map<string, UserRecord>();
+
+export const Database = {
+  users: {
+    findOne: async ({ id }: { id: string }): Promise<UserRecord | null> => {
+      return userDatabase.get(id) || null;
+    },
+    update: async (
+      query: { id: string },
+      updateData: Partial<UserRecord>
+    ): Promise<UserRecord> => {
+      const existing = userDatabase.get(query.id) || {
+        id: query.id,
+        isReaderActive: false,
+        isVip: false,
+        credits: 1,
+        expiredAt: null,
+        updatedAt: new Date(),
+      };
+      const updated: UserRecord = {
+        ...existing,
+        ...updateData,
+        updatedAt: new Date(),
+      };
+      userDatabase.set(query.id, updated);
+      return updated;
+    },
+  },
+};
+
+// GET /api/user/status - Check if user has active reader / VIP privileges
+app.get('/api/user/status', async (req: Request, res: Response) => {
+  const userId = String(req.query.userId || '').trim();
+  if (!userId) {
+    res.json({ success: false, message: 'userId is required' });
+    return;
+  }
+
+  const user = await Database.users.findOne({ id: userId });
+  res.json({
+    success: true,
+    user: user || {
+      id: userId,
+      isReaderActive: false,
+      isVip: false,
+      credits: 0,
+      expiredAt: null,
+    },
+  });
+});
+
+// API nhận Webhook từ ngân hàng / cổng thanh toán khi có tiền vào (VNPAY / VietQR / MSB)
+app.post('/api/webhook/banking', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const paymentData = req.body || {};
+    console.log('[Banking Webhook Received]:', JSON.stringify(paymentData));
+
+    // Nội dung chuyển khoản (content / description) có dạng: "TAROT 12345"
+    // Với 12345 là ID của user trong database
+    const transferContent = String(paymentData.content || paymentData.description || paymentData.transaction_content || '');
+    const amount = parseFloat(
+      paymentData.amount || paymentData.transferAmount || paymentData.amount_in || '0'
+    );
+
+    // 1. Regex tìm User ID từ nội dung chuyển khoản
+    const match = transferContent.match(/TAROT\s*(\d+)/i);
+    if (match) {
+      const userId = match[1];
+
+      // 2. Kiểm tra số tiền có khớp với giá gói Tarot không
+      // Gói VIP 30 ngày (>= 50,000 VNĐ hoặc gói 99,000 VNĐ)
+      if (amount >= 50000) {
+        // 3. Cập nhật quyền hạn cho User trong Database
+        await Database.users.update(
+          { id: userId },
+          {
+            isReaderActive: true,
+            isVip: true,
+            expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Hạn 30 ngày
+          }
+        );
+
+        console.log(`Đã kích hoạt quyền VIP Reader thành công cho User ID: ${userId}`);
+        res.status(200).json({
+          success: true,
+          message: 'Activated',
+          plan: 'VIP 30 Days',
+          userId,
+        });
+        return;
+      } else if (amount >= 10000) {
+        // Gói lẻ 1 lượt (10,000 VNĐ)
+        const existing = await Database.users.findOne({ id: userId });
+        const newCredits = (existing?.credits || 0) + 1;
+        await Database.users.update(
+          { id: userId },
+          {
+            isReaderActive: true,
+            credits: newCredits,
+          }
+        );
+
+        console.log(`Đã cộng 1 lượt xem cho User ID: ${userId}`);
+        res.status(200).json({
+          success: true,
+          message: 'Activated',
+          plan: '1 Credit',
+          userId,
+        });
+        return;
+      }
+    }
+
+    res.status(400).json({ success: false, message: 'Invalid content or amount' });
+  } catch (err: any) {
+    console.error('Error in banking webhook:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// --- VNPAY PAYMENT GATEWAY INTEGRATION ---
+const VNPAY_TMN_CODE = process.env.VNPAY_TMN_CODE || 'MSBTAROT';
+const VNPAY_HASH_SECRET = process.env.VNPAY_HASH_SECRET || 'SECRETKEYVNPAY2025';
+const VNPAY_URL = process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+
+// POST /api/vnpay/create-payment-url
+app.post('/api/vnpay/create-payment-url', (req: Request, res: Response) => {
+  try {
+    const { amount, userId, orderInfo } = req.body;
+    const finalAmount = parseInt(amount || '50000', 10);
+    const cleanUserId = String(userId || '12345').trim();
+    const memo = `TAROT ${cleanUserId}`;
+
+    // Bank account info for direct QR / VNPAY-QR:
+    // MSB - 80000420883 - LUU TU NGUYEN
+    const bankCode = 'MSB';
+    const bankAccount = '80000420883';
+    const accountName = 'LUU TU NGUYEN';
+
+    const vietQrUrl = `https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact2.png?amount=${finalAmount}&addInfo=${encodeURIComponent(
+      memo
+    )}&accountName=${encodeURIComponent(accountName)}`;
+
+    res.json({
+      success: true,
+      paymentUrl: `${VNPAY_URL}?vnp_Amount=${finalAmount * 100}&vnp_OrderInfo=${encodeURIComponent(
+        memo
+      )}&vnp_TmnCode=${VNPAY_TMN_CODE}`,
+      qrUrl: vietQrUrl,
+      orderCode: memo,
+      amount: finalAmount,
+      bank: {
+        code: bankCode,
+        name: 'Ngân hàng Hàng Hải (MSB)',
+        accountNumber: bankAccount,
+        accountName: accountName,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/vnpay/ipn - VNPAY Instant Payment Notification
+app.post('/api/vnpay/ipn', async (req: Request, res: Response) => {
+  const vnp_Params = req.query || req.body;
+  const orderInfo = String(vnp_Params['vnp_OrderInfo'] || '');
+  const amount = parseInt(String(vnp_Params['vnp_Amount'] || '0'), 10) / 100;
+  const responseCode = vnp_Params['vnp_ResponseCode'];
+
+  if (responseCode === '00' || responseCode === '0') {
+    const match = orderInfo.match(/TAROT\s*(\d+)/i);
+    if (match) {
+      const userId = match[1];
+      if (amount >= 50000) {
+        await Database.users.update(
+          { id: userId },
+          {
+            isReaderActive: true,
+            isVip: true,
+            expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          }
+        );
+      } else {
+        const existing = await Database.users.findOne({ id: userId });
+        await Database.users.update(
+          { id: userId },
+          {
+            isReaderActive: true,
+            credits: (existing?.credits || 0) + 1,
+          }
+        );
+      }
+      res.json({ RspCode: '00', Message: 'Confirm Success' });
+      return;
+    }
+  }
+
+  res.json({ RspCode: '97', Message: 'Fail Checksum or Invalid Transaction' });
+});
+
+// --- SEPAY AUTOMATED PAYMENT GATEWAY INTEGRATION (BACKWARD COMPATIBILITY) ---
 const SEPAY_API_KEY = process.env.SEPAY_API_KEY || 'spsk_test_tCPwjjqAKZJGqeKKjUMEoUwKU9F6X2YT';
 const SEPAY_MERCHANT_CODE = process.env.SEPAY_MERCHANT_CODE || 'SP-TEST-LT492795';
 const sepayTransactionsCache: Array<{
@@ -563,7 +725,7 @@ app.get('/api/sepay/config', (req: Request, res: Response) => {
 });
 
 // POST /api/sepay/webhook - Receive automatic bank transfer notifications from SePay
-app.post('/api/sepay/webhook', (req: Request, res: Response) => {
+app.post('/api/sepay/webhook', async (req: Request, res: Response) => {
   try {
     const data = req.body;
     console.log('[SePay Webhook Received]:', JSON.stringify(data));
@@ -579,9 +741,33 @@ app.post('/api/sepay/webhook', (req: Request, res: Response) => {
         timestamp: Date.now(),
       });
 
-      // Keep last 100 transactions
       if (sepayTransactionsCache.length > 100) {
         sepayTransactionsCache.pop();
+      }
+
+      // Also trigger the standard banking match for TAROT <userId>
+      const match = content.match(/TAROT\s*(\d+)/i);
+      if (match) {
+        const userId = match[1];
+        if (amount >= 50000) {
+          await Database.users.update(
+            { id: userId },
+            {
+              isReaderActive: true,
+              isVip: true,
+              expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            }
+          );
+        } else if (amount >= 10000) {
+          const existing = await Database.users.findOne({ id: userId });
+          await Database.users.update(
+            { id: userId },
+            {
+              isReaderActive: true,
+              credits: (existing?.credits || 0) + 1,
+            }
+          );
+        }
       }
     }
 
@@ -656,7 +842,6 @@ app.get('/api/sepay/check-payment', async (req: Request, res: Response): Promise
           });
 
           if (apiMatch) {
-            // Cache found transaction
             sepayTransactionsCache.unshift({
               id: apiMatch.id,
               content: apiMatch.transaction_content,
@@ -691,9 +876,14 @@ app.get('/api/health', (req: Request, res: Response) => {
     status: 'ok',
     service: 'Tarot Realist API',
     hasGemini: !!ai,
-    hasClaude: !!process.env.ANTHROPIC_API_KEY,
+    hasClaude: false,
+    engine: 'Gemini 2.5 Flash Free',
+    bank: {
+      name: 'MSB (Hàng Hải)',
+      account: '80000420883',
+      owner: 'LUU TU NGUYEN',
+    },
     hasSepay: !!SEPAY_API_KEY,
-    sepayMerchant: SEPAY_MERCHANT_CODE,
   });
 });
 
